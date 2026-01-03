@@ -4,7 +4,7 @@ If you are looking for a missing build `solana-release-aarch64-unknown-linux-gnu
 
 There is issue [1734](https://github.com/anza-xyz/agave/issues/1734) still open for agave.
 
-This repository is here to resolve this issue for now.
+This repository is here to resolve this issue for now. It does not include anything other than build pipeline using Github actions...
 
 ## Misc
 
