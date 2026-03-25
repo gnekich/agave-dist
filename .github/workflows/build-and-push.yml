@@ -5,6 +5,12 @@ on:
       - "**"
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Agave tag or ref to build (for example: v3.1.11)"
+        required: true
+        type: string
 
 jobs:
   build-agave:
@@ -31,7 +37,9 @@ jobs:
       - name: Get source ref
         id: get_ref
         run: |
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "ref=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          elif [[ $GITHUB_REF == refs/tags/* ]]; then
             echo "ref=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           else
             echo "ref=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
@@ -92,18 +100,28 @@ jobs:
   create-release:
     needs: build-agave
     runs-on: ubuntu-24.04
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
 
     steps:
+      - name: Get release tag
+        id: get_release_tag
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "tag=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ steps.get_release_tag.outputs.tag }}
           files: |
             */*.tar.bz2
-          draft: false
+          draft: ${{ github.event_name == 'workflow_dispatch' }}
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
