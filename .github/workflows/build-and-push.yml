@@ -1,8 +1,8 @@
 name: Build Agave
 on:
   push:
-    branches:
-      - "**"
+    # branches:
+    #  - "**"
     tags:
       - "v*"
   workflow_dispatch:

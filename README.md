@@ -18,3 +18,7 @@ cd ./solana-release/bin
 ## Special thanks
 
 Thanks to [mindrunner](https://github.com/mindrunner)
+
+## To build new version
+
+Just run the `Build Agave` from GitHub run workflow UI and set version like `v3.1.11` the pipeline will pull the same ref from `anza-xyz/agave` repository and will create draft release for that version.
